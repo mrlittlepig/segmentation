@@ -5,3 +5,4 @@ dataset/train/
 dataset/test/
 dataset/*.txt
 *.tfrecord
+*~
