@@ -1,1 +1,6 @@
-dataset
+.idea/
+*.pyc
+dataset/train/
+dataset/test/
+dataset/*.txt
+*.tfrecord

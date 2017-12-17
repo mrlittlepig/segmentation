@@ -79,7 +79,7 @@ def model_fn(features, labels, mode, params):
 
   loss = tf.losses.softmax_cross_entropy(onehot_labels=labels, logits=logits)
 
-  # Configure the training op
+  # Configure the train op
   if mode == tf.estimator.ModeKeys.TRAIN:
     optimizer = tf.train.AdamOptimizer(learning_rate=1e-4)
     train_op = optimizer.minimize(loss, tf.train.get_or_create_global_step())

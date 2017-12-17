@@ -81,7 +81,7 @@ def input_fn(is_training, filename, batch_size=1, num_epochs=1):
 
 
 def main():
-  # Make sure that training and testing data have been converted.
+  # Make sure that train and test data have been converted.
   train_file = os.path.join(init_params['data_params']['data_dir'], 'mnist_train.tfrecords')
   test_file = os.path.join(init_params['data_params']['data_dir'], 'mnist_test.tfrecords')
   assert (tf.gfile.Exists(train_file) and tf.gfile.Exists(test_file)), (
@@ -97,7 +97,7 @@ def main():
               'num_images': init_params['data_params']['num_images']
               })
 
-  # Set up training hook that logs the training accuracy every 100 steps.
+  # Set up train hook that logs the train accuracy every 100 steps.
   tensors_to_log = {
       'train_accuracy': 'train_accuracy'
   }
