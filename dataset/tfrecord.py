@@ -4,7 +4,12 @@ import os
 import cv2
 import tensorflow as tf
 import numpy as np
-import util.create_synthetic_imgs as create_synthetic_imgs
+import sys
+
+sys.path.append("../")
+
+from util import create_synthetic_imgs
+#import util.create_synthetic_imgs as create_synthetic_imgs
 
 IMAGE_SIZE = (240, 320)
 

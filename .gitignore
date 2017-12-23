@@ -6,3 +6,4 @@ dataset/test/
 dataset/*.txt
 *.tfrecord
 *~
+data/

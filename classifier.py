@@ -6,16 +6,17 @@ import os
 
 import tensorflow as tf
 import net.lenet as lenet
+import net.resnet as resnet
 
 data_params = {
   'model_root': 'data',
-  'data_dir': 'MNIST_data',
+  'data_dir': 'dataset',
   'data_format': 'channels_last',
-  'num_classes': 10,
-  'image_size': [28, 28],
+  'num_classes': 2,
+  'image_size': [240, 320, 3],
   'num_images': {
-    'train': 50000,
-    'validation': 10000
+    'train': 1,
+    'validation': 1
   }
 }
 
@@ -26,14 +27,24 @@ net_params = {
       data_params['model_root'],
       'lenet'
     ),
+  },
+  'resnet': {
+    'net': 'resnet.model_fn',
+    'model_dir': os.path.join(
+      data_params['model_root'],
+      'resnet'
+    ),
+    'momentum': 0.9,
+    'weight_decay': 2e-4,
+    'resnet_size': 18
   }
 }
 
 init_params = {
   'batch_size': 10,
-  'train_epoch': 10,
+  'train_epoch': 30,
   'data_params': data_params,
-  'net_params': net_params['lenet'],
+  'net_params': net_params['resnet'],
 }
 
 model_fns = [lenet]
@@ -48,15 +59,18 @@ def input_fn(is_training, filename, batch_size=1, num_epochs=1):
     features = tf.parse_single_example(
         serialized_example,
         features={
-            'bytesImg': tf.FixedLenFeature([], tf.string),
-            'label': tf.FixedLenFeature([], tf.int64),
+            'image': tf.FixedLenFeature([], tf.string),
+            'label': tf.FixedLenFeature([], tf.string),
         })
-    image = tf.decode_raw(features['bytesImg'], tf.uint8)
-    image.set_shape([init_params['data_params']['image_size'][0] * init_params['data_params']['image_size'][1]])
+    image = tf.decode_raw(features['image'], tf.uint8)
+    image.set_shape([init_params['data_params']['image_size'][0] *
+                     init_params['data_params']['image_size'][1] *
+                     init_params['data_params']['image_size'][2]])
 
     # Normalize the values of the image from the range [0, 255] to [-0.5, 0.5]
     image = tf.cast(image, tf.float32)
-    label = tf.cast(features['label'], tf.int32)
+    label = tf.decode_raw(features['label'], tf.uint8)
+    # label = tf.cast(label, tf.uint8)
     return image, tf.one_hot(label, init_params['data_params']['num_classes'])
 
   dataset = tf.data.TFRecordDataset([filename])
@@ -82,8 +96,8 @@ def input_fn(is_training, filename, batch_size=1, num_epochs=1):
 
 def main():
   # Make sure that train and test data have been converted.
-  train_file = os.path.join(init_params['data_params']['data_dir'], 'mnist_train.tfrecords')
-  test_file = os.path.join(init_params['data_params']['data_dir'], 'mnist_test.tfrecords')
+  train_file = os.path.join(init_params['data_params']['data_dir'], 'train.tfrecord')
+  test_file = os.path.join(init_params['data_params']['data_dir'], 'test.tfrecord')
   assert (tf.gfile.Exists(train_file) and tf.gfile.Exists(test_file)), (
       'No TFRecord file exists.')
 
