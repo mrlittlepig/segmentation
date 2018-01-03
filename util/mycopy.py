@@ -1,6 +1,7 @@
 import shutil
 import cv2
 import os
+import create_synthetic_imgs
 
 # get file list in source dir
 def get_file_list(src_dir):
@@ -86,4 +87,4 @@ def isfile(path):
 if __name__ == "__main__":
     img_dir = "last_images"
     dst_dir = "last_rename"
-    rename_images(img_dir, dst_dir, bak_end="jpg")
+    # rename_images(img_dir, dst_dir, bak_end="jpg")
