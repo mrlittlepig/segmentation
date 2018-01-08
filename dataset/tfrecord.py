@@ -56,7 +56,6 @@ class tfrecord(object):
     assert len(self.test_images_list) == len(self.test_labels_list)
     self.num_tests = len(self.test_images_list)
 
-
   def create(self):
     train_file = os.path.join(self.root, 'train.tfrecord')
     test_file = os.path.join(self.root, 'test.tfrecord')
@@ -100,15 +99,52 @@ class tfrecord(object):
         image = np.array(images[image_index], dtype=np.uint8).tobytes()
         label = np.array(labels[image_index], dtype=np.uint8).tobytes()
         example = tf.train.Example(features=tf.train.Features(feature={
-          "label": tf.train.Feature(int64_list=tf.train.BytesList(value=[label])),
+          "label": tf.train.Feature(bytes_list=tf.train.BytesList(value=[label])),
           "image": tf.train.Feature(bytes_list=tf.train.BytesList(value=[image])),
         }))
         test_writer.write(example.SerializeToString())
     test_writer.close()
 
+  def decode(self, record_path):
+    sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True))
+
+    filename_queue = tf.train.string_input_producer([record_path])
+
+    reader = tf.TFRecordReader()
+    _, serialized_example = reader.read(filename_queue)
+    features = tf.parse_single_example(serialized_example,
+                                       features={
+                                         "label": tf.FixedLenFeature([], tf.string),
+                                         "image": tf.FixedLenFeature([], tf.string)
+                                       })
+
+    image = tf.decode_raw(features["image"], tf.uint8)
+    image = tf.reshape(image, [IMAGE_SIZE[0], IMAGE_SIZE[1], 3])
+
+    label = tf.decode_raw(features["label"], tf.uint8)
+    label = tf.reshape(label, [IMAGE_SIZE[0], IMAGE_SIZE[1]])
+
+    coord = tf.train.Coordinator()
+    threads = tf.train.start_queue_runners(sess=sess, coord=coord)
+    if not os.path.exists('tmp'):
+      os.mkdir('tmp')
+    for i in xrange(10):
+      image_, label_ = sess.run([image, label])
+      print(label_)
+      cv2.namedWindow("b", cv2.WINDOW_NORMAL)
+      cv2.imwrite("tmp/%d.png" % i, image_)
+      cv2.imwrite('tmp/%d_label.png' % i, label_*255)
+      cv2.imshow("b", image_)
+      cv2.waitKey(1000)
+
+    coord.request_stop()
+    coord.join(threads)
+
+
 def main():
   record = tfrecord('')
-  record.create()
+  #record.create()
+  record.decode("dataset/train.tfrecord")
 
 
 if __name__ == "__main__":
