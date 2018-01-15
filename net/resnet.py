@@ -3,7 +3,7 @@
 
 import tensorflow as tf
 
-image_size = (240, 320, 3)
+image_size = (320, 240, 3)
 channel = 3
 num_classes = 2
 

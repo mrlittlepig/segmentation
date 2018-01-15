@@ -5,7 +5,6 @@ from __future__ import print_function
 import os
 
 import tensorflow as tf
-import net.lenet as lenet
 import net.resnet as resnet
 
 data_params = {
@@ -13,10 +12,10 @@ data_params = {
   'data_dir': 'dataset',
   'data_format': 'channels_last',
   'num_classes': 2,
-  'image_size': [240, 320, 3],
+  'image_size': [320, 240, 3],
   'num_images': {
-    'train': 1,
-    'validation': 1
+    'train': 100,
+    'validation': 10
   }
 }
 
@@ -47,7 +46,7 @@ init_params = {
   'net_params': net_params['resnet'],
 }
 
-model_fns = [lenet]
+model_fns = [resnet]
 if not len(model_fns) == 0:
   model_fn = eval(init_params['net_params']['net'])
 
@@ -70,6 +69,8 @@ def input_fn(is_training, filename, batch_size=1, num_epochs=1):
     # Normalize the values of the image from the range [0, 255] to [-0.5, 0.5]
     image = tf.cast(image, tf.float32)
     label = tf.decode_raw(features['label'], tf.uint8)
+    label.set_shape([init_params['data_params']['image_size'][0] *
+		     init_params['data_params']['image_size'][1]])
     # label = tf.cast(label, tf.uint8)
     return image, tf.one_hot(label, init_params['data_params']['num_classes'])
 
@@ -133,4 +134,7 @@ def main():
 
 if __name__ == '__main__':
   tf.logging.set_verbosity(tf.logging.INFO)
+  config = tf.ConfigProto()
+  config.gpu_options.allow_growth = True
+  session = tf.Session(config=config)
   main()
