@@ -11,7 +11,8 @@ sys.path.append("../")
 from util import create_synthetic_imgs
 #import util.create_synthetic_imgs as create_synthetic_imgs
 
-IMAGE_SIZE = (240, 320)
+HEIGHT = 320
+WIDTH = 240
 
 class tfrecord(object):
 
@@ -64,12 +65,12 @@ class tfrecord(object):
     for train_index in range(len(self.train_images_list)):
       print "processing %d..." % (train_index + 1)
       image = cv2.imread(self.train_images_list[train_index])
-      image = cv2.resize(image, IMAGE_SIZE, interpolation=cv2.INTER_AREA)
+      image = cv2.resize(image, (WIDTH, HEIGHT), interpolation=cv2.INTER_AREA)
       images = create_synthetic_imgs.augment_image(image)
 
       label = cv2.imread(self.train_labels_list[train_index])
       label = cv2.cvtColor(label, cv2.COLOR_BGR2GRAY)
-      label = cv2.resize(label, IMAGE_SIZE, interpolation=cv2.INTER_AREA)
+      label = cv2.resize(label, (WIDTH, HEIGHT), interpolation=cv2.INTER_AREA)
 
       label = create_synthetic_imgs.process_0_1(label)
       labels = create_synthetic_imgs.augment_image_label(label)
@@ -86,12 +87,12 @@ class tfrecord(object):
     for test_index in range(len(self.test_images_list)):
       print "processing %d..." % (test_index + 1)
       image = cv2.imread(self.test_images_list[test_index])
-      image = cv2.resize(image, IMAGE_SIZE, interpolation=cv2.INTER_AREA)
+      image = cv2.resize(image, (WIDTH, HEIGHT), interpolation=cv2.INTER_AREA)
       images = create_synthetic_imgs.augment_image(image)
 
       label = cv2.imread(self.test_labels_list[test_index])
       label = cv2.cvtColor(label, cv2.COLOR_BGR2GRAY)
-      label = cv2.resize(label, IMAGE_SIZE, interpolation=cv2.INTER_AREA)
+      label = cv2.resize(label, (WIDTH, HEIGHT), interpolation=cv2.INTER_AREA)
 
       label = create_synthetic_imgs.process_0_1(label)
       labels = create_synthetic_imgs.augment_image_label(label)
@@ -119,10 +120,10 @@ class tfrecord(object):
                                        })
 
     image = tf.decode_raw(features["image"], tf.uint8)
-    image = tf.reshape(image, [IMAGE_SIZE[0], IMAGE_SIZE[1], 3])
+    image = tf.reshape(image, [HEIGHT, WIDTH, 3])
 
     label = tf.decode_raw(features["label"], tf.uint8)
-    label = tf.reshape(label, [IMAGE_SIZE[0], IMAGE_SIZE[1]])
+    label = tf.reshape(label, [HEIGHT, WIDTH])
 
     coord = tf.train.Coordinator()
     threads = tf.train.start_queue_runners(sess=sess, coord=coord)
@@ -143,8 +144,8 @@ class tfrecord(object):
 
 def main():
   record = tfrecord('')
-  #record.create()
-  record.decode("dataset/train.tfrecord")
+  record.create()
+  # record.decode("train.tfrecord")
 
 
 if __name__ == "__main__":
