@@ -14,8 +14,8 @@ data_params = {
   'num_classes': 2,
   'image_size': [320, 240, 3],
   'num_images': {
-    'train': 100,
-    'validation': 10
+    'train': 20400,
+    'validation': 3600
   }
 }
 
@@ -40,8 +40,8 @@ net_params = {
 }
 
 init_params = {
-  'batch_size': 10,
-  'train_epoch': 30,
+  'batch_size': 120,
+  'train_epoch': 100,
   'data_params': data_params,
   'net_params': net_params['resnet'],
 }
